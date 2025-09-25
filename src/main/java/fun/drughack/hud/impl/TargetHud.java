@@ -39,10 +39,10 @@ public class TargetHud extends HudElement {
         float posX = getX();
         float posY = getY();
 
-        float width = 140f;
-        float height = 50f;
-        float fontSize = 9f;
-        float headSize = 25f;
+        float width = 120f;
+        float height = 49f;
+        float fontSize = 7f;
+        float headSize = 27f;
         float padding = 5f;
 
         float hp = MathUtils.round(Server.getHealth(target, false));

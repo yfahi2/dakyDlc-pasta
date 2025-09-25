@@ -26,7 +26,7 @@ public class DynamicIsland extends HudElement {
     private final InfinityAnimation widthAnimation = new InfinityAnimation(Easing.LINEAR);
 
     public DynamicIsland() {
-        super("DynamicIsland");
+        super("DakyDLC");
     }
 
     @EventHandler
@@ -39,7 +39,7 @@ public class DynamicIsland extends HudElement {
     public void onRender2D(EventRender2D e) {
         if (fullNullCheck() || closed()) return;
 
-        String name = "DrugHack";
+        String name = "DakyDLC";
         String track =  DrugHack.getInstance().getMediaPlayer().getLastTitle() + (DrugHack.getInstance().getMediaPlayer().getArtist().isEmpty() ? "" : " - " + DrugHack.getInstance().getMediaPlayer().getArtist());
         String pvp = I18n.translate("elements.dynamicisland.pvp");
         String pvpTimer = Server.getPvpTimer().isEmpty() ? "30" : Server.getPvpTimer();

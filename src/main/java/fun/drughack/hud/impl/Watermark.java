@@ -24,7 +24,7 @@ public class Watermark extends HudElement {
         float y = getY();
         float padding = 5f;
         float fontSize = 8f;
-        String name = "DrugHack Recode";
+        String name = "DakyDLC";
         String ping = Server.getPing(mc.player) + "ms";
         String fps = Counter.getCurrentFPS() + "fps";
         Font font = Fonts.BOLD;
