@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "drughack-recode-fabric",
+  "version": "0.1-recode",
+  "name": "drughack-recode-fabric",
+  "description": "",
+  "authors": ["serverattacked"],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/drughack/logo.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "fun.drughack.DrugHack"
+    ]
+  },
+  "mixins": [
+    "drughack-recode.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.10",
+    "minecraft": "1.21.4"
+  }
+}
