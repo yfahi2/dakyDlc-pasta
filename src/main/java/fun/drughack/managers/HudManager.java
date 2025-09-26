@@ -28,6 +28,11 @@ public class HudManager implements Wrapper {
     protected final ListSetting elements = new ListSetting("elements.settings.elements",
             new BooleanSetting("elements.settings.elements.watermark", true),
             new BooleanSetting("elements.settings.elements.targethud", true),
+            new BooleanSetting("elements.settings.elements.keybind",true),
+            new BooleanSetting("elements.settings.elements.potionlist", true),
+            new BooleanSetting("elements.settings.elements.music",true),
+            new BooleanSetting("elements.settings.elements.cooldownList",true),
+            new BooleanSetting("elements.settings.elements.staffList",true),
             new BooleanSetting("elements.settings.elements.dynamicisland", true)
     );
     @Setter private Window window;
@@ -35,7 +40,16 @@ public class HudManager implements Wrapper {
     public HudManager() {
         DrugHack.getInstance().getEventHandler().subscribe(this);
 
-        addElements(new Watermark(), new TargetHud(), new DynamicIsland());
+        addElements(
+                new Watermark(),
+                new TargetHud(),
+                new KeyBind(),
+                new Potionlist(),
+                new Music(),
+                new CooldownList(),
+                new DynamicIsland()
+
+        );
 
         for (HudElement element : hudElements) {
             try {
@@ -54,14 +68,14 @@ public class HudManager implements Wrapper {
         if (Module.fullNullCheck()) return;
 
         if (window != null) {
-        	 if (!(mc.currentScreen instanceof ChatScreen)) window.reset();
-             
-             if (window.closed()) {
-                 window = null;
-                 return;
-             }
-             
-             window.render(e.getContext(), mouseX(), mouseY());
+            if (!(mc.currentScreen instanceof ChatScreen)) window.reset();
+
+            if (window.closed()) {
+                window = null;
+                return;
+            }
+
+            window.render(e.getContext(), mouseX(), mouseY());
         }
     }
 
@@ -78,12 +92,12 @@ public class HudManager implements Wrapper {
             }
 
             if (e.getButton() == 1) {
-            	for (HudElement element : hudElements) {
-            		if (element.getWindow() == null) continue;
-            		if (element.getSettings().size() == 1) return;
-            		element.getWindow().reset();
-            	}
-            	
+                for (HudElement element : hudElements) {
+                    if (element.getWindow() == null) continue;
+                    if (element.getSettings().size() == 1) return;
+                    element.getWindow().reset();
+                }
+
                 window = new Window(mouseX() + 3, mouseY() + 3, 100, 12.5f, List.of(elements));
             }
         }

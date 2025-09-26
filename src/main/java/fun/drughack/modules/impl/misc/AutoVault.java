@@ -74,10 +74,10 @@ public class AutoVault extends Module {
         int previousSlot = mc.player.getInventory().selectedSlot;
         int slot = InventoryUtils.findHotbar(state.get(VaultBlock.OMINOUS) ? Items.OMINOUS_TRIAL_KEY : Items.TRIAL_KEY);
         if (slot == -1) {
-            mc.player.sendMessage(Text.of("[DrugHack] Slot with ominous is empty"), false);
+            mc.player.sendMessage(Text.of("[Liquid Plus] Slot with ominous is empty"), false);
             return;
         }
-        mc.player.sendMessage(Text.of("[DrugHack] " + entity.getSharedData().getDisplayItem().getItem().getName().getString()), false);
+        mc.player.sendMessage(Text.of("[Liquid Plus] " + entity.getSharedData().getDisplayItem().getItem().getName().getString()), false);
         InventoryUtils.switchSlot(autoSwitch.getValue(), slot, previousSlot);
         mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, new BlockHitResult(Vec3d.ofCenter(pos), Direction.UP, pos, false));
         InventoryUtils.swing(swing.getValue());

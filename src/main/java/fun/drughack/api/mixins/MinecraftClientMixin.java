@@ -36,6 +36,6 @@ public abstract class MinecraftClientMixin {
 
     @Inject(method = "getWindowTitle", at = @At("HEAD"), cancellable = true)
     public void updateWindowTitle(CallbackInfoReturnable<String> cir) {
-        if (!DrugHack.getInstance().isPanic()) cir.setReturnValue("DrugHack 0.1 (Dev)");
+        if (!DrugHack.getInstance().isPanic()) cir.setReturnValue("LiquidBounce PLUS ");
     }
 }

@@ -45,7 +45,7 @@ public class DrugHack implements ModInitializer, Wrapper {
 
     @Override
     public void onInitialize() {
-        LOGGER.info("[DrugHack] Starting initialization.");
+        LOGGER.info("[Liquid Plus] Starting initialization.");
         initTime = System.currentTimeMillis();
         instance = this;
         createDirs(globalsDir, configsDir, abItemsDir);
@@ -64,7 +64,7 @@ public class DrugHack implements ModInitializer, Wrapper {
         clickGui = new ClickGui();
         mainMenu = new MainMenu();
         mediaPlayer = new MediaPlayer();
-        LOGGER.info("[DrugHack] Successfully initialized for {} ms.", System.currentTimeMillis() - initTime);
+        LOGGER.info("[Liquid Plus] Successfully initialized for {} ms.", System.currentTimeMillis() - initTime);
     }
 
     private void createDirs(File... file) {

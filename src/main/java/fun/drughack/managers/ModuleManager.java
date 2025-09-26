@@ -2,6 +2,7 @@ package fun.drughack.managers;
 
 import fun.drughack.DrugHack;
 import fun.drughack.api.events.impl.EventMouse;
+import fun.drughack.hud.impl.Watermark;
 import fun.drughack.modules.api.Category;
 import fun.drughack.modules.api.Module;
 import fun.drughack.api.events.impl.EventKey;
@@ -34,42 +35,58 @@ public class ModuleManager implements Wrapper {
                 new GuiMove(),
                 new RPC(),
                 new MultiTask(),
-                new Aura(),
                 new NoPush(),
+                new WaterLeave(),
                 new NoRender(),
+                new Noclip(),
+                new EnderChestExploit(),
+                new HitSound(),
+                new Predict(),
+                new Aura(),
                 new FastUse(),
                 new MoveFix(),
-                new FakeLag(),
+                new SwingAnimations(),
+                new FakeLagDynamic(),
+                new AmbienceModule(),
+                new Arrows(),
                 new NoAttackCooldown(),
                 new NoSlow(),
                 new AutoVault(),
                 new WindHop(),
-                new TargetEsp(),
                 new NoFriendDamage(),
                 new NoEntityTrace(),
                 new Panic(),
                 new NoJumpDelay(),
                 new ItemHelper(),
+                new BedrockClip(),
+                new FastUse(),
+                new Criticals(),
+                new SwapMace(),
                 new AutoBuy(),
                 new AuctionHelper(),
                 new OffHand(),
+                new AspectRatio(),
                 new AntiBot(),
+                new Scaffold(),
                 new DamageParticles(),
                 new Fullbright(),
+                new GrimElytra(),
+                new AirSuck(),
                 new ElytraHelper(),
                 new ClickPearl(),
                 new ElytraForward(),
                 new ElytraBooster(),
                 new Targets(),
                 new Teams(),
-                new Scaffold(),
+                new LegitAura(),
+                new TargetEsp(),
+                new SeeInvincibles(),
                 new FuntimeHelper(),
                 new AutoAccept(),
                 new PotionTracker(),
                 new UseTracker(),
                 new ViewModel(),
-                new ScoreboardHealth(),
-                new Ambience()
+                new ScoreboardHealth()
         );
 
         for (Module module : modules) {

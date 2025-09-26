@@ -10,6 +10,7 @@ public enum Category {
     Misc("G"),
     Render("H"),
     Client("I"),
+    Cfg("I"),
     Hud("LOL");
 
     private final String icon;

@@ -15,8 +15,8 @@ public class ChatUtils implements Wrapper {
 
     public void sendMessage(String message) {
         MutableText text = Text.literal("");
-        for (int i = 0; i < "DrugHack".length(); i++) {
-            text.append(Text.literal("DrugHack".charAt(i) + "")
+        for (int i = 0; i < "LiquidPlus".length(); i++) {
+            text.append(Text.literal("LiquidPlus".charAt(i) + "")
                     .setStyle(Style.EMPTY
                             .withBold(true)
                             .withColor(TextColor.fromRgb(ColorUtils.gradient(ColorUtils.getGlobalColor(), Color.WHITE, (float) i / "DrugHack".length()).getRGB()))

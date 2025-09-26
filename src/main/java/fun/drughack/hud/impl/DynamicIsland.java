@@ -26,7 +26,7 @@ public class DynamicIsland extends HudElement {
     private final InfinityAnimation widthAnimation = new InfinityAnimation(Easing.LINEAR);
 
     public DynamicIsland() {
-        super("DakyDLC");
+        super("DynamicIsland");
     }
 
     @EventHandler
@@ -39,34 +39,52 @@ public class DynamicIsland extends HudElement {
     public void onRender2D(EventRender2D e) {
         if (fullNullCheck() || closed()) return;
 
-        String name = "DakyDLC";
-        String track =  DrugHack.getInstance().getMediaPlayer().getLastTitle() + (DrugHack.getInstance().getMediaPlayer().getArtist().isEmpty() ? "" : " - " + DrugHack.getInstance().getMediaPlayer().getArtist());
+        // Цветовая схема как ранее:
+        // - Единый чёрный фон
+        // - Светлая обводка
+        // - Текст белый
+        final Color cFill = new Color(0, 0, 0, 255);
+        final Color cBorder = new Color(130, 130, 180, 235);
+        final Color cText = Color.WHITE;
+        final Color cNetOk = new Color(130, 255, 130, 235);     // зелёный индикатор сети (OK)
+        final Color cNetBad = new Color(255, 90, 90, 235);      // красный индикатор сети (BAD)
+
+        String name = "LIQUIDBOUNCE PLUS";
+        String track = DrugHack.getInstance().getMediaPlayer().getLastTitle()
+                + (DrugHack.getInstance().getMediaPlayer().getArtist().isEmpty()
+                ? "" : " - " + DrugHack.getInstance().getMediaPlayer().getArtist());
         String pvp = I18n.translate("elements.dynamicisland.pvp");
         String pvpTimer = Server.getPvpTimer().isEmpty() ? "30" : Server.getPvpTimer();
+
         boolean isPvp = Server.isPvp();
         boolean mediaNull = DrugHack.getInstance().getMediaPlayer().fullNullCheck();
+
         internetAnimation.update(Server.getPing(mc.player) < 150);
         mediaAnimation.update(!mediaNull && !isPvp);
         pvpAnimation.update(isPvp);
+
         float padding = 2f;
         float round = 6f;
-        float width = widthAnimation.animate(15 + Fonts.BOLD.getWidth(isPvp ? pvp : mediaNull ? name : track, 7f) + padding * (isPvp ? 3 : 2), 200);
+        float contentWidth = Fonts.BOLD.getWidth(isPvp ? pvp : mediaNull ? name : track, 7f);
+        float width = widthAnimation.animate(15 + contentWidth + padding * (isPvp ? 3 : 2), 200);
         float height = 15f;
+
         float x = mc.getWindow().getScaledWidth() / 2f - width / 2f;
         float y = 4f;
+
         Render2D.startScissor(e.getContext(), x, y, width + 1f, height);
 
-        Render2D.drawStyledRect(
+        // Фон: единый чёрный + светлая обводка (вместо стилизованной тени)
+        Render2D.drawRoundedRect(
                 e.getContext().getMatrices(),
-                x,
-                y,
-                width,
-                height,
-                round,
-                new Color(0, 0, 0, 200),
-                255
+                x, y, width, height, round, cFill
+        );
+        Render2D.drawBorder(
+                e.getContext().getMatrices(),
+                x, y, width, height, round, 1.0f, 1.0f, cBorder
         );
 
+        // Левая зона: арт или плашка
         if (!mediaNull && !isPvp) {
             Render2D.drawTexture(
                     e.getContext().getMatrices(),
@@ -79,6 +97,7 @@ public class DynamicIsland extends HudElement {
                     new Color(255, 255, 255, (int) (255 * mediaAnimation.getValue()))
             );
         } else if (!isPvp) {
+            // Плашка-акцент (можно оставить глобальный цвет; контраст на чёрном фоне хороший)
             Render2D.drawRoundedRect(
                     e.getContext().getMatrices(),
                     x + padding,
@@ -88,7 +107,8 @@ public class DynamicIsland extends HudElement {
                     4f,
                     ColorUtils.getGlobalColor((int) (255 * mediaAnimation.getReversedValue()))
             );
-        } else if (isPvp) {
+        } else {
+            // PVP индикатор слева — красный
             Render2D.drawRoundedRect(
                     e.getContext().getMatrices(),
                     x + padding,
@@ -99,7 +119,8 @@ public class DynamicIsland extends HudElement {
                     new Color(255, 0, 0, (int) (255 * pvpAnimation.getValue()))
             );
 
-            Render2D.drawFont(e.getContext().getMatrices(),
+            Render2D.drawFont(
+                    e.getContext().getMatrices(),
                     Fonts.BOLD.getFont(6f),
                     pvpTimer,
                     x + height - Fonts.BOLD.getWidth(pvpTimer, 6f) / 2 - padding * 3.5f,
@@ -108,8 +129,10 @@ public class DynamicIsland extends HudElement {
             );
         }
 
+        // Основной текст по центру по вертикали
         if (!mediaNull && !isPvp) {
-            Render2D.drawFont(e.getContext().getMatrices(),
+            Render2D.drawFont(
+                    e.getContext().getMatrices(),
                     Fonts.BOLD.getFont(7f),
                     track,
                     x + height,
@@ -117,15 +140,17 @@ public class DynamicIsland extends HudElement {
                     new Color(255, 255, 255, (int) (255 * mediaAnimation.getValue()))
             );
         } else if (!isPvp) {
-            Render2D.drawFont(e.getContext().getMatrices(),
+            Render2D.drawFont(
+                    e.getContext().getMatrices(),
                     Fonts.BOLD.getFont(7f),
                     name,
                     x + height,
                     y - (padding / 2f) + (Fonts.BOLD.getHeight(7f) / 2f),
                     new Color(255, 255, 255, (int) (255 * mediaAnimation.getReversedValue()))
             );
-        } else if (isPvp) {
-            Render2D.drawFont(e.getContext().getMatrices(),
+        } else {
+            Render2D.drawFont(
+                    e.getContext().getMatrices(),
                     Fonts.BOLD.getFont(7f),
                     pvp,
                     x + height + padding,
@@ -136,28 +161,34 @@ public class DynamicIsland extends HudElement {
 
         Render2D.stopScissor(e.getContext());
 
-        Render2D.drawFont(e.getContext().getMatrices(),
+        // Время слева — белым (на чёрном лучше читается)
+        Render2D.drawFont(
+                e.getContext().getMatrices(),
                 Fonts.BOLD.getFont(7f),
                 MathUtils.getCurrentTime(),
                 x - (padding * 3f) - Fonts.BOLD.getWidth(MathUtils.getCurrentTime(), 7f),
                 y - (padding / 2f) + (Fonts.BOLD.getHeight(7f) / 2f),
-                Color.BLACK
+                cText
         );
 
-        Render2D.drawFont(e.getContext().getMatrices(),
+        // Индикаторы интернета справа:
+        // "Q" — хорошее соединение (зелёный), "P" — плохое (красный)
+        Render2D.drawFont(
+                e.getContext().getMatrices(),
                 Fonts.ICONS.getFont(7f),
                 "Q",
                 x + width + (padding * 3f),
                 y + padding + (Fonts.ICONS.getHeight(7f) / 2f) - 2f,
-                new Color(0, 0, 0, (int) (255 * internetAnimation.getValue()))
+                new Color(cNetOk.getRed(), cNetOk.getGreen(), cNetOk.getBlue(), (int) (cNetOk.getAlpha() * internetAnimation.getValue()))
         );
 
-        Render2D.drawFont(e.getContext().getMatrices(),
+        Render2D.drawFont(
+                e.getContext().getMatrices(),
                 Fonts.ICONS.getFont(7f),
                 "P",
                 x + width + (padding * 3f),
                 y + padding + (Fonts.ICONS.getHeight(7f) / 2f) - 2f,
-                new Color(0, 0, 0, (int) (255 * internetAnimation.getReversedValue()))
+                new Color(cNetBad.getRed(), cNetBad.getGreen(), cNetBad.getBlue(), (int) (cNetBad.getAlpha() * internetAnimation.getReversedValue()))
         );
 
         super.onRender2D(e);

@@ -7,7 +7,7 @@ import net.minecraft.network.packet.Packet;
 
 @AllArgsConstructor @Getter
 public class EventPacket extends Event {
-    private final Packet<?> packet;
+    public final Packet<?> packet;
 
     public static class Receive extends EventPacket {
         public Receive(Packet<?> packet) {

@@ -15,7 +15,7 @@ public class MediaPlayer {
 
     private BufferedImage image;
     private AbstractTexture texture;
-    private String title = "", artist = "", owner = "", lastTitle = "";
+    private String title = "", artist = "", owner = "", lastTitle = "", progress = "00:00 / 00:00";
     private long duration = 0, position = 0;
     private boolean changeTrack;
     private IMediaSession session;
@@ -29,44 +29,59 @@ public class MediaPlayer {
                     .filter(s -> (!s.getMedia().getArtist().isEmpty() || !s.getMedia().getTitle().isEmpty()))
                     .findFirst()
                     .orElse(null);
-            
+
             if (session == null) {
                 title = "";
                 lastTitle = "";
                 artist = "";
                 owner = "";
                 image = null;
+                progress = "00:00 / 00:00";
 
                 if (texture != null) {
                     texture.close();
                     texture = null;
                 }
-
                 return;
             }
 
             MediaInfo info = session.getMedia();
-
             title = info.getTitle();
             artist = info.getArtist();
             duration = info.getDuration();
             position = info.getPosition();
             image = info.getArtwork();
             owner = session.getOwner();
-            
-            if (lastTitle == null || !lastTitle.equals(title)) {
+
+
+            progress = formatTime(position) + " / " + formatTime(duration);
+
+            boolean trackChanged = lastTitle == null || !lastTitle.equals(title);
+            if (trackChanged) {
                 changeTrack = true;
                 lastTitle = title;
+
+                progress = formatTime(position) + " / " + formatTime(duration);
             }
 
-            if (changeTrack) {
-                if (texture != null) texture.close();
-                texture = Render2D.convert(image);
+            if (changeTrack || trackChanged || (image != null && texture == null)) {
+                if (image != null) {
+                    if (texture != null) {
+                        texture.close();
+                    }
+                    texture = Render2D.convert(image);
+                }
                 changeTrack = false;
             }
         });
     }
 
+
+    private String formatTime(long millis) {
+
+        long seconds = millis;
+        return String.format("%02d:%02d", seconds / 60, seconds % 60);
+    }
     public boolean fullNullCheck() {
         return session == null || texture == null || lastTitle.isEmpty();
     }

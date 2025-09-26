@@ -1,5 +1,7 @@
 package fun.drughack.modules.impl.render;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import fun.drughack.DrugHack;
 import fun.drughack.api.events.impl.EventAttackEntity;
 import fun.drughack.api.events.impl.EventRender2D;
@@ -11,6 +13,11 @@ import fun.drughack.utils.math.MathUtils;
 import fun.drughack.utils.render.Render2D;
 import fun.drughack.utils.world.WorldUtils;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.client.gl.ShaderProgramKeys;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -24,6 +31,7 @@ public class DamageParticles extends Module {
 
     private final NumberSetting count = new NumberSetting("settings.damageparticles.count", 30f, 10f, 50f, 1f);
     private final NumberSetting size = new NumberSetting("settings.damageparticles.size", 30f, 10f, 50f, 1f);
+    private int randomTexture;
 
     public DamageParticles() {
         super("DamageParticles", Category.Render);
@@ -47,35 +55,36 @@ public class DamageParticles extends Module {
 
     @EventHandler
     private void onRender2D(EventRender2D e) {
-        if (fullNullCheck()) return; 	
+        if (fullNullCheck()) return;
 
-        //RenderSystem.enableBlend();
-        //RenderSystem.blendFunc(GlStateManager.SrcFactor.ONE_MINUS_DST_COLOR, GlStateManager.DstFactor.ONE);
-        //RenderSystem.enableDepthTest();
-        //RenderSystem.depthMask(false);
-        
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GlStateManager.SrcFactor.ONE_MINUS_DST_COLOR, GlStateManager.DstFactor.ONE);
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(false);
+
+        BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
         for (Particle particle : particles) {
-            if (System.currentTimeMillis() - particle.time > 7000 || particle.alpha <= 0) particles.remove(particle);
+            if (System.currentTimeMillis() - particle.time > 4000 || particle.alpha <= 0) particles.remove(particle);
             else if (mc.player.getPos().distanceTo(particle.pos) > 100) particles.remove(particle);
             else if (isInView(particle.pos)) {
                 particle.update();
                 Vec3d position = WorldUtils.getPosition(particle.pos);
-                float f = 1 - ((System.currentTimeMillis() - particle.time) / 7000f);
+                float f = 1 - ((System.currentTimeMillis() - particle.time) / 4000f);
                 Render2D.drawTexture(e.getContext().getMatrices(),
-                		(float) position.getX(),
-                		(float) position.getY(),
-                		size.getValue() * f,
-                		size.getValue() * f,
-                		0f,
-                		particle.texture,
-                		new Color(255, 0, 0, (int) (255 * particle.alpha))
+                        (float) position.getX(),
+                        (float) position.getY(),
+                        size.getValue() * f,
+                        size.getValue() * f,
+                        0f,
+                        particle.texture,
+                        new Color(123, 65, 42, (int) (255 * particle.alpha))
                 );
             } else particles.remove(particle);
         }
-        
-        //RenderSystem.depthMask(true);
-        //RenderSystem.defaultBlendFunc();
-        //RenderSystem.disableBlend();
+
+        RenderSystem.depthMask(true);
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableBlend();
     }
 
     private static class Particle {
@@ -92,7 +101,7 @@ public class DamageParticles extends Module {
                     MathUtils.randomFloat(0f, 0.07f),
                     MathUtils.randomFloat(-0.07f, 0.07f)
             );
-            this.time = System.currentTimeMillis();
+            this.time = System.currentTimeMillis() - 30;
             this.texture = randomTexture();
             this.alpha = 0.8f;
         }
@@ -100,10 +109,10 @@ public class DamageParticles extends Module {
         public void update() {
             if (collisionTime != -1) {
                 long timeSinceCollision = System.currentTimeMillis() - collisionTime;
-                alpha = Math.max(0, 0.8f - (timeSinceCollision / 3000f));
+                alpha = Math.max(0, 0.8f - (timeSinceCollision / 2000f));
             }
 
-            velocity = velocity.subtract(0, 0.001, 0);
+            velocity = velocity.subtract(0, -0.000001, 0);
 
             if (!mc.world.getBlockState(new BlockPos((int) Math.floor(pos.x + velocity.x), (int) Math.floor(pos.y), (int) Math.floor(pos.z))).isAir()) {
                 velocity = new Vec3d(-velocity.x * 0.3f, velocity.y, velocity.z);
@@ -121,7 +130,7 @@ public class DamageParticles extends Module {
             }
 
             pos = pos.add(velocity);
-            velocity = velocity.multiply(0.995);
+            velocity = velocity.multiply(0.99);
         }
 
         private Identifier randomTexture() {

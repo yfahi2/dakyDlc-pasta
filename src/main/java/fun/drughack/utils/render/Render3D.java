@@ -1,6 +1,8 @@
 package fun.drughack.utils.render;
 
+import fun.drughack.DrugHack;
 import fun.drughack.api.mixins.accessors.IWorldRenderer;
+import fun.drughack.hud.HudElement;
 import fun.drughack.utils.Wrapper;
 import lombok.experimental.UtilityClass;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -8,7 +10,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
@@ -27,6 +31,10 @@ public class Render3D implements Wrapper {
     public List<VertexCollection> DEBUG_LINES = new ArrayList<>();
     public List<VertexCollection> SHINE_QUADS = new ArrayList<>();
     public List<VertexCollection> SHINE_DEBUG_LINES = new ArrayList<>();
+    public final List<Line> LINE_DEPTH = new ArrayList<>();
+    public final List<Line> LINE = new ArrayList<>();
+    public final List<Quad> QUAD_DEPTH = new ArrayList<>();
+    public final List<Quad> QUAD = new ArrayList<>();
 
     public void renderCube(MatrixStack matrices, Vec3d vec3d, double size, boolean fill, Color fillColor, boolean outline, Color outlineColor) {
         if (outline) renderBoxOutline(matrices, new Box(vec3d.add(-0.5 * size, -0.5 * size,-0.5 * size), vec3d.add(0.5 * size, 0.5 * size,0.5 * size)), outlineColor);
@@ -40,6 +48,75 @@ public class Render3D implements Wrapper {
 
     public void renderBox(MatrixStack matrices, Box box, Color color) {
         renderGradientBox(matrices, box, color, color);
+    }
+    public void renderBoxС(MatrixStack matrices, Box box, int color) {
+        renderGradientBox(matrices, box, new Color(color), new Color(color));
+    }
+
+    public void renderBoxCC(MatrixStack matrices, Box box, Color color) {
+        renderGradientBox(matrices, box, color, color);
+    }
+    public void drawBox(Box box, int color, float width) {
+        drawBox(box, color, width, true, true, false);
+    }
+    public void drawBox(Box box, int color, float width, boolean line, boolean fill, boolean depth) {
+        drawBox(null, box, color, width, line, fill, depth) ;
+    }
+    public void drawBox(MatrixStack.Entry entry, Box box, int color, float width, boolean line, boolean fill, boolean depth) {
+        box = box.expand(1e-3);
+
+        double x1 = box.minX;
+        double y1 = box.minY;
+        double z1 = box.minZ;
+        double x2 = box.maxX;
+        double y2 = box.maxY;
+        double z2 = box.maxZ;
+
+        if (fill) {
+            int fillColor = ColorUtils.applyOpacity(color, 0.1f);
+            drawQuad(entry, new Vec3d(x1, y1, z1), new Vec3d(x2, y1, z1), new Vec3d(x2, y1, z2), new Vec3d(x1, y1, z2), fillColor, depth);
+            drawQuad(entry, new Vec3d(x1, y1, z1), new Vec3d(x1, y2, z1), new Vec3d(x2, y2, z1), new Vec3d(x2, y1, z1), fillColor, depth);
+            drawQuad(entry, new Vec3d(x2, y1, z1), new Vec3d(x2, y2, z1), new Vec3d(x2, y2, z2), new Vec3d(x2, y1, z2), fillColor, depth);
+            drawQuad(entry, new Vec3d(x1, y1, z2), new Vec3d(x2, y1, z2), new Vec3d(x2, y2, z2), new Vec3d(x1, y2, z2), fillColor, depth);
+            drawQuad(entry, new Vec3d(x1, y1, z1), new Vec3d(x1, y1, z2), new Vec3d(x1, y2, z2), new Vec3d(x1, y2, z1), fillColor, depth);
+            drawQuad(entry, new Vec3d(x1, y2, z1), new Vec3d(x1, y2, z2), new Vec3d(x2, y2, z2), new Vec3d(x2, y2, z1), fillColor, depth);
+        }
+
+        if (line) {
+            drawLine(entry, x1, y1, z1, x2, y1, z1, color, width, depth);
+            drawLine(entry, x2, y1, z1, x2, y1, z2, color, width, depth);
+            drawLine(entry, x2, y1, z2, x1, y1, z2, color, width, depth);
+            drawLine(entry, x1, y1, z2, x1, y1, z1, color, width, depth);
+            drawLine(entry, x1, y1, z2, x1, y2, z2, color, width, depth);
+            drawLine(entry, x1, y1, z1, x1, y2, z1, color, width, depth);
+            drawLine(entry, x2, y1, z2, x2, y2, z2, color, width, depth);
+            drawLine(entry, x2, y1, z1, x2, y2, z1, color, width, depth);
+            drawLine(entry, x1, y2, z1, x2, y2, z1, color, width, depth);
+            drawLine(entry, x2, y2, z1, x2, y2, z2, color, width, depth);
+            drawLine(entry, x2, y2, z2, x1, y2, z2, color, width, depth);
+            drawLine(entry, x1, y2, z2, x1, y2, z1, color, width, depth);
+        }
+    }
+    public void drawLine(MatrixStack.Entry entry, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, int color, float width, boolean depth) {
+        drawLine(entry, new Vec3d(minX, minY, minZ), new Vec3d(maxX, maxY, maxZ), color, color, width, depth);
+    }
+
+    public void drawLine(Vec3d start, Vec3d end, int color, float width, boolean depth) {
+        drawLine(null, start, end, color, color, width, depth);
+    }
+
+    public void drawLine(MatrixStack.Entry entry, Vec3d start, Vec3d end, int colorStart, int colorEnd, float width, boolean depth) {
+        Line line = new Line(entry, start, end, colorStart, colorEnd, width);
+        if (depth) LINE_DEPTH.add(line); else LINE.add(line);
+    }
+
+    public void drawQuad(Vec3d x, Vec3d y, Vec3d w, Vec3d z, int color, boolean depth) {
+        drawQuad(null,x,y,w,z,color,depth);
+    }
+
+    public void drawQuad(MatrixStack.Entry entry, Vec3d x, Vec3d y, Vec3d w, Vec3d z, int color, boolean depth) {
+        Quad quad = new Quad(entry, x, y, w, z, color);
+        if (depth) QUAD_DEPTH.add(quad); else QUAD.add(quad);
     }
 
     public void renderBoxOutline(MatrixStack matrices, Box box, Color color) {
@@ -130,6 +207,7 @@ public class Render3D implements Wrapper {
         rendering = true;
     }
 
+
     public void draw(List<VertexCollection> quads, List<VertexCollection> debugLines, boolean shine) {
         RenderSystem.enableBlend();
         if (shine) RenderSystem.blendFunc(770, 32772);
@@ -181,6 +259,10 @@ public class Render3D implements Wrapper {
             for (Vertex vertex : vertices) buffer.vertex(vertex.matrix, vertex.x, vertex.y, vertex.z).color(vertex.color);
         }
     }
-
+    public static float getTickDelta() {
+        return mc.getRenderTickCounter().getTickDelta(true);
+    }
+    public record Quad(MatrixStack.Entry entry, Vec3d x, Vec3d y, Vec3d w, Vec3d z, int color) {}
+    public record Line(MatrixStack.Entry entry, Vec3d start, Vec3d end, int colorStart, int colorEnd, float width) {}
     private record Vertex(Matrix4f matrix, float x, float y, float z, int color) { }
 }

@@ -18,7 +18,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.resource.language.I18n;
 
 public class BindComponent extends Component {
-	
+
 	private final BindSetting setting;
 	private final InfinityAnimation animation = new InfinityAnimation(Easing.LINEAR);
 	private final Animation bindingAnimation = new Animation(300, 1f, false, Easing.BOTH_SINE);
@@ -51,7 +51,7 @@ public class BindComponent extends Component {
 			binding = true;
 			return;
 		}
-		
+
 		if (binding) {
 			setting.setValue(new Bind(button, true));
 			binding = false;
@@ -61,7 +61,7 @@ public class BindComponent extends Component {
 
 	@Override
 	public void mouseReleased(double mouseX, double mouseY, int button) {
-		
+
 	}
 
 	@Override
@@ -75,11 +75,11 @@ public class BindComponent extends Component {
 
 	@Override
 	public void keyReleased(int keyCode, int scanCode, int modifiers) {
-		
+
 	}
 
 	@Override
 	public void charTyped(char chr, int modifiers) {
-		
+
 	}//
 }

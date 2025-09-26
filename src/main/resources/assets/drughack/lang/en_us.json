@@ -40,6 +40,8 @@
   "descriptions.render.damageparticles": "Draws particles on hit for entity.",
   "descriptions.render.fullbright": "Toggled on max brightness when dark.",
   "descriptions.render.watermark": "Draws watermark of client.",
+  "descriptions.render.keybind": "Draw Buttons.",
+  "descriptions.render.potionlist": "Draw Potion.",
 
   "descriptions.client.ui": "Displays your UI.",
   "descriptions.client.rpc": "Displays client activity in discord.",
@@ -66,7 +68,7 @@
   "commands.macro.macros": "Your macros: ",
   "commands.macro.empty": "You don't have any macros :<",
   "commands.macro.cleared": "Macros list was clear.",
-  
+
   "commands.waypoint.added": "Waypoint %s has been added to your waypoints list.",
   "commands.waypoint.removed": "Waypoint %s has been removed from your waypoints list.",
   "commands.waypoint.already": "Waypoint %s is already in your waypoints list.",
@@ -163,6 +165,7 @@
   "settings.norender.scoreboard": "Scoreboard",
   "settings.norender.bossbar": "Bossbar",
   "settings.norender.particles": "Particles",
+  "settings.norender.badeffect": "BadEffect",
   "settings.norender.armor": "Armor",
   "settings.norender.limbs": "Limbs",
   "settings.norender.clip": "Clip",
@@ -187,19 +190,24 @@
 
   "settings.damageparticles.count": "Count",
   "settings.damageparticles.size": "Size",
-  
+
   "settings.funtimehelper.binddesor": "Bind desorientations",
   "settings.funtimehelper.bindtrapka": "Bind traps",
   "settings.funtimehelper.bindyavka": "Bind visible dusts",
   "settings.funtimehelper.bindbozhka": "Bind divine auras",
   "settings.funtimehelper.bindplast": "Bind plasts",
-  
+
   "settings.elytrahelper.bindfirework": "Bind firework",
   "settings.elytrahelper.bindelytra": "Bind elytra",
 
   "elements.settings.elements": "Elements",
   "elements.settings.elements.watermark": "Watermark",
   "elements.settings.elements.targethud": "TargetHud",
+  "elements.settings.elements.keybind": "KeyBind",
+  "elements.settings.elements.potionlist": "Potionlist",
+  "elements.settings.elements.music": "Music",
+  "elements.settings.elements.cooldownList": "CooldownList",
+  "elements.settings.elements.staffList": "StaffList",
   "elements.settings.elements.dynamicisland": "DynamicIsland",
   "elements.dynamicisland.pvp": "Pvp mode active!"
 }
