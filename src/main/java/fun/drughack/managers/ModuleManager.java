@@ -69,6 +69,7 @@ public class ModuleManager implements Wrapper {
                 new UseTracker(),
                 new ViewModel(),
                 new ScoreboardHealth()
+                new AutoFlyMe()
         );
 
         for (Module module : modules) {
