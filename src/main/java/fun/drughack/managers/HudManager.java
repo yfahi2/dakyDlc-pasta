@@ -35,11 +35,7 @@ public class HudManager implements Wrapper {
     public HudManager() {
         DrugHack.getInstance().getEventHandler().subscribe(this);
 
-        addElements(
-                new Watermark(),
-                new TargetHud(),
-                new DynamicIsland()
-        );
+        addElements(new Watermark(), new TargetHud(), new DynamicIsland());
 
         for (HudElement element : hudElements) {
             try {

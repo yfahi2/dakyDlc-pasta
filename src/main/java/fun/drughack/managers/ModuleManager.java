@@ -68,7 +68,8 @@ public class ModuleManager implements Wrapper {
                 new PotionTracker(),
                 new UseTracker(),
                 new ViewModel(),
-                new ScoreboardHealth()
+                new ScoreboardHealth(),
+                new Ambience()
         );
 
         for (Module module : modules) {
