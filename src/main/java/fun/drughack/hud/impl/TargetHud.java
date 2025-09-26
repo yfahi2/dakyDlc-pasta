@@ -36,54 +36,51 @@ public class TargetHud extends HudElement {
         Aura aura = DrugHack.getInstance().getModuleManager().getModule(Aura.class);
         LivingEntity target = mc.currentScreen instanceof ChatScreen ? mc.player : aura.getTarget();
         if (target == null) return;
-        float posX = getX();
-        float posY = getY();
+		float posX = getX();
+		float posY = getY();
 
-        float width = 120f;
-        float height = 49f;
-        float fontSize = 7f;
-        float headSize = 27f;
-        float padding = 5f;
+		// New layout constants (adapted from requested design)
+		float width = 192f;
+		float height = 70f;
+		float padding = 6f;
+		float headSize = 58f;
+		float cornerRadius = 12f;
+		float nameTextSize = 16f;
+		float itemSize = 16f;
+		float itemSpacing = 4f;
 
-        float hp = MathUtils.round(Server.getHealth(target, false));
-        float maxHp = MathUtils.round(target.getMaxHealth());
-        float gappleHp = MathUtils.round(target.getAbsorptionAmount());
-        float healthPercent = hp / maxHp;
-        float gapplePercent = gappleHp / maxHp;
-        float healthWidth = healthAnimation.animate((width - padding * 2) * healthPercent, 200);
-        float gappleWidth = gappleAnimation.animate((width - padding * 2) * gapplePercent, 200);
-        float barWidth = (width - padding * 2);
+		float hp = MathUtils.round(Server.getHealth(target, false));
+		float maxHp = MathUtils.round(target.getMaxHealth());
+		float gappleHp = MathUtils.round(target.getAbsorptionAmount());
+		float healthPercent = Math.max(0f, Math.min(1f, hp / Math.max(1f, maxHp)));
+		float gapplePercent = Math.max(0f, gappleHp / Math.max(1f, maxHp));
+
+		// Animate widths for smooth transitions
+		float hpBarMaxWidth = 116f;
+		float hpBarHeight = 18f;
+		float animatedHealthWidth = healthAnimation.animate(hpBarMaxWidth * healthPercent, 200);
+		float animatedAbsorbWidth = gappleAnimation.animate(hpBarMaxWidth * gapplePercent, 200);
         e.getContext().getMatrices().push();
         e.getContext().getMatrices().translate(posX + width / 2, posY + height / 2, 0f);
         e.getContext().getMatrices().scale(toggledAnimation.getValue(), toggledAnimation.getValue(), 0);
         e.getContext().getMatrices().translate(-(posX + width / 2), -(posY + height / 2), 0f);
-        if (target instanceof PlayerEntity player) {
-            float offset = 0f;
-            List<ItemStack> armor = player.getInventory().armor;
-            for (ItemStack stack : new ItemStack[]{armor.get(3), armor.get(2), armor.get(1), armor.get(0), player.getOffHandStack(), player.getMainHandStack()}) {
-                if (stack.isEmpty()) continue;
-                e.getContext().getMatrices().push();
-                e.getContext().getMatrices().scale(0.75f, 0.75f, 0.75f);
-                e.getContext().drawItem(stack, (int) ((posX + width - offset - padding * 2.75f) / 0.75f), (int) ((posY - padding * 2.75f) / 0.75f));
-                e.getContext().getMatrices().pop();
-                offset += 12f;
-            }
-        }
+		// Equipment will be rendered later in a fixed row; skip early armor pass
 
-        Render2D.startScissor(e.getContext(), posX, posY, width, height);
-        Render2D.drawStyledRect(
-                e.getContext().getMatrices(),
-                posX,
-                posY,
-                width,
-                height,
-                3.5f,
-                new Color(0, 0, 0, 200),
-                255
-        );
+		Render2D.startScissor(e.getContext(), posX, posY, width, height);
+		// Background with new corner radius and opacity
+		Render2D.drawStyledRect(
+				e.getContext().getMatrices(),
+				posX,
+				posY,
+				width,
+				height,
+				cornerRadius,
+				new Color(0, 0, 0, 200),
+				255
+		);
 
-        float headX = posX + padding;
-        float headY = posY + padding;
+		float headX = posX + padding;
+		float headY = posY + padding;
 
         if (target instanceof PlayerEntity)
             Render2D.drawTexture(
@@ -121,52 +118,119 @@ public class TargetHud extends HudElement {
             );
         }
 
-        if (!target.getName().getString().isEmpty()) Render2D.drawFont(e.getContext().getMatrices(),
-                Fonts.MEDIUM.getFont(fontSize),
-                target.getName().getString(),
-                headX + headSize + padding,
-                 posY + padding * 2f - padding / 2f,
-                Color.WHITE
-        );
+		// Name (truncated to available width)
+		String fullName = target.getName().getString();
+		float baseX = headX + headSize + padding;
+		float maxNameWidth = width - padding - headSize - padding * 2 - 10f;
+		if (!fullName.isEmpty()) {
+			String displayName = truncateToWidth(fullName, maxNameWidth, nameTextSize);
+			Render2D.drawFont(
+					e.getContext().getMatrices(),
+					Fonts.MEDIUM.getFont(nameTextSize),
+					displayName,
+					baseX,
+					posY + padding,
+					Color.WHITE
+			);
+		}
 
-        Render2D.drawFont(e.getContext().getMatrices(),
-                Fonts.MEDIUM.getFont(fontSize),
-                "HP: " + hp + (gappleHp > 0 ? " (%s)".formatted(gappleHp) : ""),
-                headX + headSize + padding,
-                posY + height - 20f - padding * 2,
-                Color.WHITE
-        );
+		// Health bar area (aligned to bottom with padding)
+		float hpBarX = baseX;
+		float hpBarY = posY + height - padding - hpBarHeight;
 
-        Render2D.drawRoundedRect(e.getContext().getMatrices(),
-                posX + padding,
-                 posY + height - 10f - padding,
-                barWidth,
-                10f,
-                2f,
-                new Color(23, 23, 23)
-        );
+		// Bar background
+		Render2D.drawRoundedRect(
+				e.getContext().getMatrices(),
+				hpBarX,
+				hpBarY,
+				hpBarMaxWidth,
+				hpBarHeight,
+				10f / 2f,
+				new Color(97, 97, 97, 128)
+		);
 
-        Render2D.drawRoundedRect(e.getContext().getMatrices(),
-                posX + padding,
-                posY + height - 10f - padding,
-                healthWidth,
-                10f,
-                2f,
-                ColorUtils.getGlobalColor()
-        );
+		// Filled health
+		if (animatedHealthWidth > 0.5f) {
+			Render2D.drawRoundedRect(
+					e.getContext().getMatrices(),
+					hpBarX,
+					hpBarY,
+					animatedHealthWidth,
+					hpBarHeight,
+					10f / 2f,
+					new Color(150, 150, 150, 255)
+			);
+		}
 
-        Render2D.drawRoundedRect(e.getContext().getMatrices(),
-                posX + padding,
-                posY + height - 10f - padding,
-                gappleWidth,
-                10f,
-                2f,
-                new Color(255, 200, 0)
-        );
+		// Absorption overlay
+		if (gappleHp > 0f && animatedAbsorbWidth > 0.5f) {
+			Render2D.drawRoundedRect(
+					e.getContext().getMatrices(),
+					hpBarX,
+					hpBarY,
+					Math.min(animatedAbsorbWidth, hpBarMaxWidth),
+					hpBarHeight,
+					cornerRadius / 2f,
+					new Color(222, 189, 0, 255)
+			);
+		}
+
+		// Percent text centered in the bar
+		String percentText = Math.round(healthPercent * 100f) + "%";
+		float percentWidth = Fonts.MEDIUM.getWidth(percentText, 12f);
+		float percentX = hpBarX + (hpBarMaxWidth - percentWidth) / 2f;
+		float percentY = hpBarY + (hpBarHeight - Fonts.MEDIUM.getHeight(12f)) / 2f - 1f;
+		Render2D.drawFont(
+				e.getContext().getMatrices(),
+				Fonts.MEDIUM.getFont(12f),
+				percentText,
+				percentX,
+				percentY,
+				Color.WHITE
+		);
+
+		// Equipment row (6 slots): HEAD, CHEST, LEGS, FEET, MAINHAND, OFFHAND
+		if (target instanceof PlayerEntity player) {
+			List<ItemStack> armor = player.getInventory().armor;
+			ItemStack head = armor.get(3);
+			ItemStack chest = armor.get(2);
+			ItemStack legs = armor.get(1);
+			ItemStack feet = armor.get(0);
+			ItemStack mainHand = player.getMainHandStack();
+			ItemStack offHand = player.getOffHandStack();
+
+			float itemsY = hpBarY - 5f - itemSize + 1f;
+			float ix = baseX;
+			ItemStack[] items = new ItemStack[]{head, chest, legs, feet, mainHand, offHand};
+			for (int i = 0; i < items.length; i++) {
+				ItemStack stack = items[i];
+				if (stack != null && !stack.isEmpty()) {
+					e.getContext().drawItem(stack, (int) ix, (int) itemsY);
+				}
+				ix += itemSize + itemSpacing;
+			}
+		}
 
         Render2D.stopScissor(e.getContext());
         e.getContext().getMatrices().pop();
         setBounds(getX(), getY(), width, height);
         super.onRender2D(e);
     }
+
+	private String truncateToWidth(String text, float maxWidth, float textSize) {
+		if (Fonts.MEDIUM.getWidth(text, textSize) <= maxWidth) return text;
+		String ellipsis = "...";
+		float ellipsisWidth = Fonts.MEDIUM.getWidth(ellipsis, textSize);
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < text.length(); i++) {
+			char c = text.charAt(i);
+			sb.append(c);
+			if (Fonts.MEDIUM.getWidth(sb.toString(), textSize) + ellipsisWidth > maxWidth) {
+				// remove last char which overflowed
+				sb.deleteCharAt(sb.length() - 1);
+				break;
+			}
+		}
+		return sb.append(ellipsis).toString();
+	}
 }
